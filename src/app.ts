@@ -1,8 +1,8 @@
 import cors from 'cors'
 import express, { Application, Request, Response } from 'express'
-import { CarRoutes } from './app/modules/car/car.route'
-import { OrderRoutes } from './app/modules/order/order.route'
-import { RevenueRoutes } from './app/modules/revenue/revenue.routes'
+import { CarRoutes } from './modules/car/car.route'
+import { OrderRoutes } from './modules/order/order.route'
+import { RevenueRoutes } from './modules/revenue/revenue.routes'
 
 const app:Application = express()
 

@@ -1,4 +1,4 @@
-import { CarModel } from "../car.model";
+import { CarModel } from "./car.model";
 import { Car } from "./car.interface";
 
 const createCarIntoDB = async(car: Car)=>{

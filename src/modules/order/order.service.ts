@@ -1,5 +1,5 @@
-import { CarModel } from "../car.model"
-import { OrderModel } from "../order.model";
+import { CarModel } from "../car/car.model"
+import { OrderModel } from "./order.model";
 
 
 const createOrderAndUpdateInventory = async (email: string, carId: string, quantity: number, totalPrice: number)=>{
