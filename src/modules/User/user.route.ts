@@ -13,6 +13,11 @@ router.post(
     UserControllers.createUser,
 );
 
+router.get(
+    '/users',
+    UserControllers.getAllUser
+)
+
 router.post(
     '/login',
     validateRequest(AuthValidation.loginValidationSchema),

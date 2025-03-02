@@ -1,15 +1,12 @@
 import cors from 'cors'
 import express, { Application, Request, Response } from 'express'
-import { CarRoutes } from './modules/car/car.route'
-import { OrderRoutes } from './modules/order/order.route'
-import { RevenueRoutes } from './modules/revenue/revenue.routes'
 import router from './app/routes'
 
 const app:Application = express()
 
 // parsers
 app.use(express.json())
-app.use(cors())
+app.use(cors({ origin: ['http://localhost:5173'], credentials: true }))
 
 // application routes
 app.use('/api', router);
@@ -20,7 +17,7 @@ app.use('/api', router);
 
 
 const getAController =  (req:Request, res:Response) => {
-  const a=10;
+const a=10;
 res.send(a)
 }
 

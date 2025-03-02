@@ -27,7 +27,19 @@ const createUser = catchAsync(async (req, res) =>{
         data:filteredData,
     })
 });
+const getAllUser = catchAsync(async (req, res) =>{
+
+    const result = await UserServices.getAllUserFromDB();
+
+    sendResponse(res, {
+        statusCode:httpStatus.FOUND,
+        success:true,
+        message:'User Retrieved Successfully',
+        data:result,
+    })
+});
 
 export const UserControllers ={
     createUser,
+    getAllUser,
 }

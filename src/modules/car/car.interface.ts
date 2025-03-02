@@ -6,6 +6,7 @@ export type Car = {
     price: number;
     category:"Sedan" | "SUV"| "Truck" | "Coupe"| "Convertible";
     description:string;
+    image:string;
     quantity:number;
     inStock:boolean;
   }

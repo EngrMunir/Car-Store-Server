@@ -9,8 +9,6 @@ const createCar = async(req:Request, res:Response)=>{
     // will call service function to send this data
     const result = await CarServices.createCarIntoDB(carData);
 
-    
-
     // send response
     res.status(200).json({
         success:true,
