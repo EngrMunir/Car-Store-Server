@@ -16,7 +16,12 @@ router.post(
 router.get(
     '/users',
     UserControllers.getAllUser
-)
+);
+
+router.delete(
+    '/delete-user/:id',
+    UserControllers.deleteUser,
+);
 
 router.post(
     '/login',
