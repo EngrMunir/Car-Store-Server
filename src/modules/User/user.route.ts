@@ -18,6 +18,11 @@ router.get(
     UserControllers.getAllUser
 );
 
+router.patch(
+    '/role-change',
+    UserControllers.changeRole
+);
+
 router.delete(
     '/delete-user/:id',
     UserControllers.deleteUser,

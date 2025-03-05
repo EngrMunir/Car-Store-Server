@@ -1,9 +1,24 @@
-import express from 'express'
-import { OrderControllers } from './order.controller';
+import { Router } from "express";
+import auth from "../../app/middleware/auth";
+import { USER_ROLE } from "../User/user.constant";
+import { orderController } from "./order.controller";
 
-const router = express.Router()
+const orderRouter = Router();
+orderRouter.get("/verify", auth(USER_ROLE.user), orderController.verifyPayment);
 
-router.post('/', OrderControllers.createOrder)
-router.get('/', OrderControllers.getRevenue)
+orderRouter
+.route("/")
+.post(auth(USER_ROLE.user), orderController.createOrder)
+.get(auth(USER_ROLE.user), orderController.getOrders);
 
-export const OrderRoutes = router;
+export default orderRouter;
+
+// import express from 'express'
+// import { OrderControllers } from './order.controller';
+
+// const router = express.Router()
+
+// router.post('/', OrderControllers.createOrder)
+// router.get('/', OrderControllers.getRevenue)
+
+// export const OrderRoutes = router;
