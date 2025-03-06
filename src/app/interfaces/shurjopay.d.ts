@@ -145,4 +145,3 @@ declare module "shurjopay" {
   
     export default Shurjopay;
   }
-  
