@@ -11,11 +11,6 @@ app.use(cors({ origin: ['http://localhost:5173'], credentials: true }))
 // application routes
 app.use('/api', router);
 
-// app.use('/api/cars', CarRoutes)
-// app.use('/api/orders', OrderRoutes)
-// app.use('/api/orders/revenue', RevenueRoutes)
-
-
 const getAController =  (req:Request, res:Response) => {
 const a=10;
 res.send(a)

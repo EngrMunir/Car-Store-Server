@@ -44,6 +44,7 @@ const createOrder = async(
         customer_phone:"N/A",
         customer_city:"N/A",
         client_ip,
+        return_url: process.env.SP_RETURN_URL, 
     };
 
     const payment = await orderUtils.makePaymentAsync(shurjoPayPayload);
