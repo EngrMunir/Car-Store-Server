@@ -14,11 +14,12 @@ const createOrder = async(
         throw new AppError(httpStatus.NOT_ACCEPTABLE, "Order is not specified");
     
     const cars = payload.cars;
+    console.log('payload in create order',payload)
     
     let totalPrice = 0;
     const carDetails = await Promise.all(
         cars.map(async (item) =>{
-            const car = await CarModel.findById(item.car);
+            const car = await CarModel.findById(item.product);
             if(car){
                 const subtotal = car? (car.price || 0)*item.quantity:0;
                 totalPrice += subtotal;
@@ -46,6 +47,7 @@ const createOrder = async(
         client_ip,
         return_url: process.env.SP_RETURN_URL, 
     };
+    // console.log(shurjoPayPayload);
 
     const payment = await orderUtils.makePaymentAsync(shurjoPayPayload);
 
