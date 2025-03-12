@@ -19,10 +19,6 @@ const moduleRoutes =[
         path:'/order',
         route: OrderRoutes
     },
-    // {
-    //     path:'/orders/revenue',
-    //     route:RevenueRoutes
-    // },
     {
         path:'/cart',
         route:CartRoutes,

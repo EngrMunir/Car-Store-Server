@@ -50,6 +50,17 @@ const changeRole = catchAsync(async (req, res) =>{
     }) 
 });
 
+const changePasswordIntoDB = catchAsync(async (req, res) =>{
+    const { email, oldPassword, newPassword } = req.body;
+    const result = await UserServices.changePasswordIntoDB(email, oldPassword, newPassword);
+    sendResponse(res, {
+        statusCode:httpStatus.OK,
+        success:true,
+        message:'Password updated successfully',
+        data:result
+    })
+})
+
 const deleteUser = catchAsync(async (req, res) =>{
     const { id }= req.params;
     const result = await UserServices.deleteUserFromDB(id);
@@ -66,5 +77,6 @@ export const UserControllers ={
     createUser,
     getAllUser,
     changeRole,
+    changePasswordIntoDB,
     deleteUser,
 }

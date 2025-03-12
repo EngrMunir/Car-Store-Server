@@ -1,6 +1,6 @@
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
-
+import bcrypt from "bcrypt";
 const createUserIntoDB = async(payload: Partial<TUser>)=>{
     const newUser = await User.create({...payload, role:"user"});
 
@@ -23,6 +23,25 @@ const changeRoleIntoDB = async(userId: string, newRole:string)=>{
     return result;
 };
 
+const changePasswordIntoDB = async(email:string, oldPassword:string, newPassword:string)=>{
+    const user = await User.findOne({email}).select('+password');
+    if(!user){
+        throw new Error('User not found')
+    }
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+    if(!isMatch){
+        throw new Error('Old password not matched')
+    }
+     // Hash new password
+     const salt = await bcrypt.genSalt(12);
+     user.password = await bcrypt.hash(newPassword, salt);
+ 
+     await user.save();
+ 
+     return { message: "Password updated successfully" };
+}
+
 const deleteUserFromDB =async(id:string)=>{
  const deleteUser = await User.findByIdAndDelete(id);
  if(!deleteUser){
@@ -37,4 +56,5 @@ export const UserServices ={
     getAllUserFromDB,
     changeRoleIntoDB,
     deleteUserFromDB,
+    changePasswordIntoDB
 }

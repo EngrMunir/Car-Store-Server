@@ -22,6 +22,8 @@ router.patch(
     '/role-change',
     UserControllers.changeRole
 );
+router.patch("/change-password", UserControllers.changePasswordIntoDB)
+    
 
 router.delete(
     '/delete-user/:id',

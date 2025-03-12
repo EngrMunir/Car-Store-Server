@@ -1,5 +1,6 @@
 import { CarModel } from "./car.model";
 import { Car } from "./car.interface";
+import QueryBuilder from "../../app/builder/QueryBulder";
 
 const createCarIntoDB = async(car: Car)=>{
    const result = await CarModel.create(car)
@@ -7,10 +8,34 @@ const createCarIntoDB = async(car: Car)=>{
 }
 
 // get all car
-const getAllCarFromDB = async()=>{
-    const result = await CarModel.find();
-    return result;
-}
+// Get all cars with filtering, searching, sorting, and pagination
+const getAllCarFromDB = async (query: Record<string, unknown>) => {
+    const modelQuery = CarModel.find(); // Start with a basic query
+  
+    const queryBuilder = new QueryBuilder<Car>(modelQuery, query)
+      .search(["brand","name", "category"]) // Search in name, brand, and model
+      .filter()
+      .sort()
+      .paginate()
+      .fields();
+  
+    const cars = await queryBuilder.modelQuery;
+    const totalInfo = await queryBuilder.countTotal();
+  
+    return { cars, ...totalInfo };
+  };
+  const getFilteredCarsFromDB = async (query: any, pageSize: number, skip: number, sortOptions: any) => {
+    const cars = await CarModel.find(query)
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(pageSize);
+
+    return cars;
+};
+
+const getTotalCarsCount = async (query: any) => {
+    return await CarModel.countDocuments(query);
+};
 
 // get single car
 const getSingleCarFromDB = async(id: string)=>{
@@ -34,6 +59,8 @@ export const CarServices = {
     createCarIntoDB,
     getAllCarFromDB,
     getSingleCarFromDB,
+    getFilteredCarsFromDB,
+    getTotalCarsCount,
     getSingleCarAndUpdateFromDB,
     getSingleCarAndDeleteFromDB,
 }

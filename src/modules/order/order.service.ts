@@ -15,6 +15,7 @@ const createOrder = async(
     
     const cars = payload.cars;
     console.log('payload in create order',payload)
+    console.log('user in create order',user)
     
     let totalPrice = 0;
     const carDetails = await Promise.all(
@@ -30,7 +31,7 @@ const createOrder = async(
 
     let order = await Order.create({
         user,
-        cars:carDetails,
+        products:carDetails,
         totalPrice,
     });
 
@@ -63,7 +64,7 @@ const createOrder = async(
 };
 
 const getOrders = async () =>{
-    const data = await Order.find();
+    const data = await Order.find().populate('user');
     return data;
 };
 
@@ -95,70 +96,22 @@ const verifyPayment = async (order_id: string)=>{
     return verifiedPayment;
 };
 
+const getOrderByEmail = async (email:string)=>{
+    const orders = await Order.find().populate(
+        {
+            path:'user',
+            select:'email'
+        }
+    );
+    console.log(orders);
+    const userOrders = orders.filter(order => order.user?.email === email);
+    console.log(userOrders);
+    return userOrders;
+}
+
 export const orderService ={
     createOrder,
     getOrders,
     verifyPayment,
+    getOrderByEmail
 }
-
-// import { CarModel } from "../car/car.model"
-// import { OrderModel } from "./order.model";
-
-
-// const createOrderAndUpdateInventory = async (email: string, carId: string, quantity: number, totalPrice: number)=>{
-//     const car = await CarModel.findById(carId);
-
-//     if (!car) {
-//         throw new Error("Car not found");
-//       }
-    
-//       // Check if there is enough quantity in stock
-//       if (car.quantity < quantity) {
-//         throw new Error("Insufficient stock");
-//       }
-
-//     car.quantity -= quantity;
-//     if (car.quantity === 0) {
-//         car.inStock = false;
-//     }
-
-//     await car.save();
-
-//     const newOrder = new OrderModel({ email, car: carId, quantity, totalPrice });
-//     await newOrder.save();
-
-//     return newOrder;
-// }
-
-// const calculateTotalRevenue = async()=>{
-//     const result = await OrderModel.aggregate([
-//         {
-//             $lookup: {
-//                 from:'cars',
-//                 localField:'car',
-//                 foreignField:'_id',
-//                 as:'carDetails',
-//             }
-//         },
-//         {
-//             $unwind: '$carDetails'
-//         },
-//         {
-//             $project: {
-//                 totalRevenue: { $multiply: ['$quantity','$carDetails.price']},
-//             }
-//         },
-//         {
-//             $group:{
-//                 _id:null,
-//                 totalRevenue:{ $sum: '$totalRevenue'}
-//             }
-//         }
-//     ])
-//     return result[0]?.totalRevenue || 0;
-// }
-
-// export const OrderServices = {
-//     createOrderAndUpdateInventory,
-//     calculateTotalRevenue,
-// }

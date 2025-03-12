@@ -29,6 +29,28 @@ const getOrders = catchAsync(async (req, res) =>{
     });
 });
 
+const getOrderByEmail = catchAsync(async (req, res) => {
+    const { email } = req.query; // Extract email from query params
+
+    if (!email) {
+        return sendResponse(res, {
+            statusCode: httpStatus.BAD_REQUEST,
+            success: false,
+            message: "Email is required to fetch orders",
+            data: null,
+        });
+    }
+
+    const orders = await orderService.getOrderByEmail(email as string);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        message: "Orders retrieved successfully",
+        success: true,
+        data: orders,
+    });
+});
+
 const verifyPayment = catchAsync(async (req, res) =>{
     const order = await orderService.verifyPayment(req.query.order_id as string);
 
@@ -40,43 +62,4 @@ const verifyPayment = catchAsync(async (req, res) =>{
     });
 });
 
-export const orderController = { createOrder, verifyPayment, getOrders };
-
-// import { Request, Response } from "express";
-// import { OrderServices } from "./order.service";
-
-// const createOrder = async(req:Request, res:Response)=>{
-//     try {
-//         const { email, car, quantity, totalPrice }=req.body;
-
-//         const order = OrderServices.createOrderAndUpdateInventory(email, car, quantity, totalPrice);
-
-//         res.status(201).json({
-//             success: true,
-//             message: 'Order created successfully',
-//             data: order,
-//         })
-
-//     } catch (err) {
-//         console.log(err)
-//     }
-// }
-
-// const getRevenue = async(req:Request, res:Response)=>{
-//     try {
-//         const totalRevenue = await OrderServices.calculateTotalRevenue()
-
-//         res.status(200).json({
-//             success: true,
-//             message: 'Revenue calculated successfully',
-//             data: { totalRevenue },
-//         });
-//     } catch (err) {
-//         console.log(err)
-//     }
-// }
-
-// export const OrderControllers = {
-//     createOrder,
-//     getRevenue,
-// };
+export const orderController = { createOrder, verifyPayment, getOrders, getOrderByEmail };
