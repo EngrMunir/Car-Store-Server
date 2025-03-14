@@ -1,10 +1,13 @@
+import { Types } from "mongoose";
+
+
 export type TCartItem = {
-    carId: string;
-    userEmail: string;
+    product: Types.ObjectId;
+    email: string;
     quantity: number;
   };
   
   export type TCart = {
-    userEmail: string;
+    email: string;
     items: TCartItem[];
   };

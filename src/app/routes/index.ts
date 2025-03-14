@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { CarRoutes } from "../../modules/car/car.route";
-import { CartRoutes } from "../../modules/Cart/Cart.route";
 import { UserRoutes } from "../../modules/User/user.route";
 import { OrderRoutes } from "../../modules/order/order.route";
+import { CartRoutes } from "../../modules/Cart/Cart.route";
 
 const router = Router();
 
