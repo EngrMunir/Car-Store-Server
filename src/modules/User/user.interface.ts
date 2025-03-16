@@ -1,20 +1,26 @@
-
+/* eslint-disable no-unused-vars */
 import { Model } from "mongoose";
-import { USER_ROLE } from "./user.constant";
+import { TRole, TStatus, USER_ROLE } from "./user.constant";
 
 
 export type TUser = {
   name: string;
   email: string;
   password: string;
-  role: 'admin' | 'user';
+  photo?: string | null;
+  role: TRole;
+  status: TStatus;
+  shippingAddress?: string;
+  passwordChangedAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+  isBlocked?: boolean;
 };
 
-
 export interface UserModel extends Model<TUser>{
-  // instance methods for checking if the user exist
+ 
   isUserExistsByEmail(email:string):Promise<TUser>;
-  // instance methods for checking if passwords are matched
+
   isPasswordMatched(
     plainTextPassword:string,
     hashedPassword:string,

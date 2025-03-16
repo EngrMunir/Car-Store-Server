@@ -2,12 +2,17 @@ import express from 'express'
 import { CarControllers } from './car.controller'
 import auth from '../../app/middleware/auth'
 import { USER_ROLE } from '../User/user.constant'
+import validateRequest from '../../app/middleware/validateRequest'
+import { CarValidation } from './car.validation'
 
 const router = express.Router()
 
 
 // will call controller func
-router.post('/', CarControllers.createCar)
+router.post('/', 
+    auth(USER_ROLE.admin),
+    validateRequest(CarValidation.createCarValidationSchema),
+    CarControllers.createCar)
 
 router.get('/',CarControllers.getAllCar)
 

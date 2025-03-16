@@ -1,13 +1,36 @@
 import { z } from 'zod';
+import { USER_STATUS } from './user.constant';
 
-export const createUserValidationSchema = z.object({
-    body:z.object({
-        name:z.string().min(1).max(20),
-        email:z.string().email(),
-        password:z.string({
-            invalid_type_error:'Password must be string'
-        })
-        .max(20,{ message:'Password can not be more than twenty character'})
-        .optional(),
-    })
-})
+const changeStatusValidationSchema = z.object({
+  body: z.object({
+    status: z.enum([...USER_STATUS] as [string, ...string[]]),
+  }),
+});
+
+const changeBlockValidationSchema = z.object({
+  body: z.object({
+    isBlocked: z.boolean(),
+  }),
+});
+
+const updateProfileValidationSchema = z.object({
+  body: z.object({
+    name: z.string({ required_error: 'Name is required' }).optional(),
+    shippingAddress: z
+      .string({ required_error: 'Shipping address is required' })
+      .optional(),
+  }),
+});
+
+const updatePhotoValidationSchema = z.object({
+  body: z.object({
+    photo: z.string({ required_error: 'Photo is required' }).optional(),
+  }),
+});
+
+export const UserValidation = {
+  changeStatusValidationSchema,
+  changeBlockValidationSchema,
+  updateProfileValidationSchema,
+  updatePhotoValidationSchema,
+};
