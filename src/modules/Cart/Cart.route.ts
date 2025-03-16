@@ -6,14 +6,15 @@ import { USER_ROLE } from '../User/user.constant';
 const router = express.Router();
 
 router.get('/by-email/:email',auth(USER_ROLE.user), CartControllers.getUserCart);
-router.post('/add', CartControllers.addToCart);
+router.post('/add', auth(USER_ROLE.user), CartControllers.addToCart); //problem
 router.patch('/increase-quantity/:email/:productId', CartControllers.increaseQuantity);
 router.patch('/decrease-quantity/:email/:productId', CartControllers.decreaseQuantity);
-router.delete('/remove', CartControllers.removeCartItem);
+router.delete('/remove/:email/:productId', CartControllers.removeCartItem);
+router.delete('/clear/:email', auth(USER_ROLE.user), CartControllers.clearCart);
 // router.get('/cartItem', CartControllers.getUserCart);
 
 
 // // router.put('/update', CartControllers.updateCartItem);
-// router.delete('/clear/:userId', CartControllers.clearCart);
+
 
 export const CartRoutes = router;

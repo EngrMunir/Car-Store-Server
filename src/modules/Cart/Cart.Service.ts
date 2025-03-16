@@ -1,9 +1,13 @@
+import mongoose from "mongoose";
 import { CarModel } from "../car/car.model";
 import { CartModel } from "./Cart.model";
-import { ObjectId } from "mongoose";
 
-const addToCart = async (email: string, productId: ObjectId) => {
+const addToCart = async (email: string, productId: string) => {
+
+  
   const car = await CarModel.findById(productId);
+ 
+
   if (!car) throw new Error("Car not found");
 
   // Ensure that there is enough stock
@@ -26,6 +30,7 @@ const addToCart = async (email: string, productId: ObjectId) => {
     car.quantity-=1;
   } else {
     // If product does not exist, add a new entry
+    console.log(typeof productId);
     cart.items.push({ product: productId, quantity: 1 });
     car.quantity-=1;
   }
@@ -38,6 +43,7 @@ const addToCart = async (email: string, productId: ObjectId) => {
 
 
 const getUserCart = async (email: string) => {
+
   const res = await CartModel.findOne({ email }).populate("items.product");
   
   return res;
@@ -51,8 +57,6 @@ const increaseQuantity = async (email: string, productId: string) => {
   if (car.quantity <= 0) throw new Error("Car is out of stock");
   // console.log(productId);
   const cart = await CartModel.findOne({ email });
-  console.log('find cart',cart)
-  console.log('service page', email, productId)
 
   if (!cart) throw new Error("Cart not found");
 
@@ -103,13 +107,27 @@ const decreaseQuantity = async (email: string, productId: string) => {
 
 const removeCartItem = async (email: string, productId: string) => {
   const cart = await CartModel.findOne({ email });
+  const car = await CarModel.findById(productId);
 
   if (!cart) throw new Error("Cart not found");
+  if(!car) throw new Error("Car not found");
+
+  let removedItemQuantity = 0;
 
   cart.items = cart.items.filter(
-    (item) => item.product.toString() !== productId
+    (item) => {
+      if(item.product.toString() !== productId){
+        removedItemQuantity = item.quantity;
+        return false;
+      }
+      return true
+    }
   );
 
+  if(removedItemQuantity>0){
+    car.quantity +=removedItemQuantity;
+    await car.save();
+  }
   if (cart.items.length === 0) {
     await CartModel.findOneAndDelete({ email });
     return null;
@@ -119,10 +137,16 @@ const removeCartItem = async (email: string, productId: string) => {
   return cart;
 };
 
+const clearCart = async (email: string) => {
+  await CartModel.findOneAndDelete({ email });
+};
+
+
 export const CartServices = {
   addToCart,
   increaseQuantity,
   decreaseQuantity,
   removeCartItem,
   getUserCart,
+  clearCart
 };

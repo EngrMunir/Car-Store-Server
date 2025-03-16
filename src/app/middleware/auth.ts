@@ -11,11 +11,13 @@ import { User } from "../../modules/User/user.model";
 const auth = (...requiredRoles:TUserRole[])=>{
     return catchAsync( async (req:Request, res:Response, next:NextFunction)=>{
         const token = req.headers.authorization?.split(' ')[1];
+        // console.log("token from auth",token)
 
         // checking if the token is missing
         if(!token){
             throw new AppError(httpStatus.UNAUTHORIZED, 'Your are not authorized!');
         }
+       
         let decoded;
 
         try {
@@ -25,12 +27,13 @@ const auth = (...requiredRoles:TUserRole[])=>{
                 config.jwt_access_secret as string
             ) as JwtPayload;
         } catch (error) {
+            
             throw new AppError(httpStatus.UNAUTHORIZED,'Unauthorized');
         }
 
         const { role, email } = decoded;
 
-        console.log(role, email);
+        // console.log('role, email from auth',role, email);
 
         // checking if the user is exist
         const user = await User.isUserExistsByEmail(email);

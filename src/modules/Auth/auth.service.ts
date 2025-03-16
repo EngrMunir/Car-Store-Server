@@ -8,6 +8,7 @@ import config from "../../app/config";
 const loginUser = async (payload:TLoginUser)=>{
     // checking if the user exists
     const user = await User.isUserExistsByEmail(payload.email);
+    
 
     if(!user){
         throw new AppError(httpStatus.NOT_FOUND, 'This user is not found!');
