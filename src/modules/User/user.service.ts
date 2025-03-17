@@ -4,6 +4,7 @@ import { User } from './user.model';
 import { JwtPayload } from 'jsonwebtoken';
 import { userSearchableFields } from './user.constant';
 import AppError from '../../app/errors/AppError';
+import QueryBuilder from '../../app/builder/QueryBulder';
 
 const getSingleUserFromDB = async (userEmail: string, user: JwtPayload) => {
   const result = await User.findOne({ email: userEmail });

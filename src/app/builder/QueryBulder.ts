@@ -16,7 +16,10 @@ class QueryBuilder<T> {
         $or: searchableFields.map(
           (field) =>
             ({
-              [field]: { $regex: searchTerm, $options: 'i' },
+              [field]: {
+                $regex: searchTerm,
+                $options: 'i',
+              },
             }) as FilterQuery<T>,
         ),
       });
@@ -26,14 +29,51 @@ class QueryBuilder<T> {
   }
 
   filter() {
-    const queryObj = { ...this.query }; // copy
+    // const queryObj = { ...this.query };
+    // // filtering
+    // const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
+    // excludeFields.forEach((field) => delete queryObj[field]);
 
-    // Filtering
+    // this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
+
+    // return this;
+
+    const queryObj = { ...this.query };
     const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
+    excludeFields.forEach((field) => delete queryObj[field]);
 
-    excludeFields.forEach((el) => delete queryObj[el]);
+    const filterQuery: Record<string, any> = {};
 
-    this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
+    // Handle price range filtering
+    if (queryObj.price && typeof queryObj.price === 'object') {
+      const priceFilter: Record<string, number> = {};
+
+      if ('gte' in queryObj.price && queryObj.price.gte) {
+        priceFilter.$gte = Number(queryObj.price.gte);
+      }
+
+      if ('lte' in queryObj.price && queryObj.price.lte) {
+        priceFilter.$lte = Number(queryObj.price.lte);
+      }
+
+      if (Object.keys(priceFilter).length > 0) {
+        filterQuery.price = priceFilter;
+      }
+    }
+
+    // Handle category filtering (Ignore if "All Categories" is selected)
+    if (queryObj.category && queryObj.category !== 'all') {
+      filterQuery.category = queryObj.category;
+    }
+
+    // Handle inStock filtering (convert to Boolean)
+    if (queryObj.inStock !== undefined) {
+      filterQuery.inStock = queryObj.inStock === 'true';
+    }
+
+    this.modelQuery = this.modelQuery.find({
+      ...filterQuery,
+    } as FilterQuery<T>);
 
     return this;
   }
@@ -41,6 +81,7 @@ class QueryBuilder<T> {
   sort() {
     const sort =
       (this?.query?.sort as string)?.split(',')?.join(' ') || '-createdAt';
+
     this.modelQuery = this.modelQuery.sort(sort as string);
 
     return this;
@@ -52,29 +93,33 @@ class QueryBuilder<T> {
     const skip = (page - 1) * limit;
 
     this.modelQuery = this.modelQuery.skip(skip).limit(limit);
-
     return this;
   }
 
   fields() {
     const fields =
-      (this?.query?.fields as string)?.split(',')?.join(' ') || '-__v';
+      (this?.query?.fields as string)?.split(',')?.join(' ') || '-_v';
 
     this.modelQuery = this.modelQuery.select(fields);
     return this;
   }
+
   async countTotal() {
-    const totalQueries = this.modelQuery.getFilter();
+    const totalQueries = {
+      ...this.modelQuery.getFilter(),
+      isDeleted: { $ne: true }, // Exclude deleted documents
+    };
     const total = await this.modelQuery.model.countDocuments(totalQueries);
+
     const page = Number(this?.query?.page) || 1;
     const limit = Number(this?.query?.limit) || 10;
-    const totalPage = Math.ceil(total / limit);
+    const totalPages = Math.ceil(total / limit);
 
     return {
       page,
       limit,
+      totalPages,
       total,
-      totalPage,
     };
   }
 }
