@@ -1,39 +1,45 @@
-import express from 'express';
-import { UserControllers } from './user.controller';
-import validateRequest from '../../app/middleware/validateRequest';
-import { createUserValidationSchema } from './user.validation';
-import { AuthValidation } from '../Auth/authValidation';
-import { AuthControllers } from '../Auth/auth.controller';
+import { Router } from "express";
+import auth from "../../app/middleware/auth";
+import { USER_ROLE } from "./user.constant";
+import validateRequest from "../../app/middleware/validateRequest";
+import { UserValidation } from "./user.validation";
+import { UserController } from "./user.controller";
 
-const router = express.Router();
+
+const router = Router();
 
 router.post(
-    '/register',
-    validateRequest(createUserValidationSchema),
-    UserControllers.createUser,
+  '/block-user/:id',
+  auth(USER_ROLE.admin),
+  validateRequest(UserValidation.changeBlockValidationSchema),
+  UserController.blockUser,
 );
 
-router.get(
-    '/users',
-    UserControllers.getAllUser
+router.post(
+  '/change-status/:id',
+  auth(USER_ROLE.user),
+  validateRequest(UserValidation.changeStatusValidationSchema),
+  UserController.changeStatus,
 );
 
 router.patch(
-    '/role-change',
-    UserControllers.changeRole
-);
-router.patch("/change-password", UserControllers.changePasswordIntoDB)
-    
-
-router.delete(
-    '/delete-user/:id',
-    UserControllers.deleteUser,
+  '/update-profile/:userId',
+  auth(USER_ROLE.admin, USER_ROLE.user),
+  validateRequest(UserValidation.updateProfileValidationSchema),
+  UserController.updateProfile,
 );
 
-router.post(
-    '/login',
-    validateRequest(AuthValidation.loginValidationSchema),
-    AuthControllers.loginUser,
+router.patch(
+  '/update-profile-photo/:userId',
+  auth(USER_ROLE.admin, USER_ROLE.user),
+  validateRequest(UserValidation.updatePhotoValidationSchema),
+  UserController.updateProfilePhoto,
 );
+router.get(
+  '/:userEmail',
+  auth(USER_ROLE.admin, USER_ROLE.user),
+  UserController.getSingleUser,
+);
+router.get('/', auth(USER_ROLE.admin), UserController.getAllUsers);
 
 export const UserRoutes = router;

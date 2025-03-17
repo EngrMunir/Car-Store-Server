@@ -1,82 +1,108 @@
-import AppError from "../../app/errors/AppError";
-import { catchAsync } from "../../app/utils/catchAsync";
-import sendResponse from "../../app/utils/sendResponse";
-import { User } from "./user.model";
-import { UserServices } from "./user.service";
-import httpStatus from 'http-status';
+import { Request, Response } from 'express';
+import status from 'http-status';
+import { UserServices } from './user.service';
+import { JwtPayload } from 'jsonwebtoken';
+import { catchAsync } from '../../app/utils/catchAsync';
+import sendResponse from '../../app/utils/sendResponse';
 
-const createUser = catchAsync(async (req, res) =>{
+const getSingleUser = catchAsync(async (req: Request, res: Response) => {
+  // Get user data from request params
+  const { userEmail } = req.params;
 
-    const isUserExist = await User.isUserExistsByEmail(req.body.email);
-    if(isUserExist){
-        throw new AppError(httpStatus.BAD_REQUEST,'This user is already exists');
-    }
+  const user = req.user as JwtPayload;
 
-    const result = await UserServices.createUserIntoDB(req.body);
+  // Create a new user
+  const result = await UserServices.getSingleUserFromDB(userEmail, user);
 
-    const filteredData = {
-        _id:result._id,
-        name:result.name,
-        email:result.email,
-    };
-
-    sendResponse(res, {
-        statusCode:httpStatus.CREATED,
-        success:true,
-        message:'User Registered Successfully',
-        data:filteredData,
-    })
-});
-const getAllUser = catchAsync(async (req, res) =>{
-
-    const result = await UserServices.getAllUserFromDB();
-
-    sendResponse(res, {
-        statusCode:httpStatus.OK,
-        success:true,
-        message:'User Retrieved Successfully',
-        data:result,
-    })
+  // Send response
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'User retrieved successfully',
+    data: result,
+  });
 });
 
-const changeRole = catchAsync(async (req, res) =>{
-    const { id, role } = req.body;
-    const result = await UserServices.changeRoleIntoDB(id, role);
-    sendResponse(res, {
-        statusCode:httpStatus.OK,
-        success:true,
-        message:'User role updated Successfully',
-        data: result
-    }) 
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserServices.getAllUsersFromDB(req.query);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Users retrieved successfully',
+    meta: result.meta,
+    data: result.result,
+  });
 });
 
-const changePasswordIntoDB = catchAsync(async (req, res) =>{
-    const { email, oldPassword, newPassword } = req.body;
-    const result = await UserServices.changePasswordIntoDB(email, oldPassword, newPassword);
-    sendResponse(res, {
-        statusCode:httpStatus.OK,
-        success:true,
-        message:'Password updated successfully',
-        data:result
-    })
-})
+const changeStatus = catchAsync(async (req, res) => {
+  // Get user data from request params
+  const { id } = req.params;
 
-const deleteUser = catchAsync(async (req, res) =>{
-    const { id }= req.params;
-    const result = await UserServices.deleteUserFromDB(id);
+  const user = req.user as JwtPayload;
 
-    sendResponse(res, {
-        statusCode:httpStatus.OK,
-        success:true,
-        message:'User Deleted Successfully',
-        data:result,
-    })
+  if (!user) throw new Error('You are not authorized!');
+  const result = await UserServices.changeStatus(id, req.body, user);
+
+  // Send response
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'User status updated succesfully',
+    data: result,
+  });
 });
 
-export const UserControllers ={
-    createUser,
-    getAllUser,
-    changeRole,
-    changePasswordIntoDB,
-    deleteUser,
-}
+const blockUser = catchAsync(async (req, res) => {
+  // Get user data from request params
+  const { id } = req.params;
+  const result = await UserServices.blockUser(id, req.body);
+
+  // Send response
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'User blocked successfully',
+    data: result,
+  });
+});
+
+const updateProfile = catchAsync(async (req, res) => {
+  // Get user data from request params
+  const { userId } = req.params;
+
+  const user = req.user as JwtPayload;
+  const result = await UserServices.updateProfile(userId, req.body, user);
+
+  // Send response
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'User profile updated successfully',
+    data: result,
+  });
+});
+const updateProfilePhoto = catchAsync(async (req, res) => {
+  // Get user data from request params
+  const { userId } = req.params;
+
+  const user = req.user as JwtPayload;
+  const result = await UserServices.updateProfilePhoto(userId, req.body, user);
+
+  // Send response
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'User profile photo updated successfully',
+    data: result,
+  });
+});
+
+export const UserController = {
+  getSingleUser,
+  getAllUsers,
+  changeStatus,
+  blockUser,
+  updateProfile,
+  updateProfilePhoto,
+};

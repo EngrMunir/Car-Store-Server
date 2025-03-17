@@ -1,60 +1,146 @@
-import { TUser } from "./user.interface";
-import { User } from "./user.model";
-import bcrypt from "bcrypt";
-const createUserIntoDB = async(payload: Partial<TUser>)=>{
-    const newUser = await User.create({...payload, role:"user"});
+import status from 'http-status';
+import { TUser } from './user.interface';
+import { User } from './user.model';
+import { JwtPayload } from 'jsonwebtoken';
+import { userSearchableFields } from './user.constant';
+import AppError from '../../app/errors/AppError';
 
-    return newUser;
+const getSingleUserFromDB = async (userEmail: string, user: JwtPayload) => {
+  const result = await User.findOne({ email: userEmail });
+
+  if (!result) throw new AppError(status.NOT_FOUND, 'User not found');
+
+  if (result.email !== user.email)
+    throw new AppError(status.UNAUTHORIZED, 'You are not authorized!');
+
+  return result;
 };
 
-const getAllUserFromDB = async()=>{
-    const users = await User.find().select("_id name email role");
-    return users;
+const getAllUsersFromDB = async (query: Record<string, unknown>) => {
+  const userQuery = new QueryBuilder(User.find(), query).search(
+    userSearchableFields,
+  );
+
+  const meta = await userQuery.countTotal();
+  const result = await userQuery.modelQuery;
+
+  return { result, meta };
 };
 
-const changeRoleIntoDB = async(userId: string, newRole:string)=>{
-    const result = await User.findByIdAndUpdate(
-        userId, 
-        {role:newRole}, 
-        {
-            new:true,
-            runValidators: true
-        });
-    return result;
-};
+const changeStatus = async (
+  id: string,
+  payload: Partial<TUser>,
+  user: JwtPayload,
+) => {
+  const userData = await User.findOne({ _id: id });
 
-const changePasswordIntoDB = async(email:string, oldPassword:string, newPassword:string)=>{
-    const user = await User.findOne({email}).select('+password');
-    if(!user){
-        throw new Error('User not found')
+  if (!userData) throw new AppError(status.NOT_FOUND, 'User not found');
+
+  if (userData.email !== user.email)
+    throw new AppError(status.UNAUTHORIZED, 'You are not authorized!');
+
+  // Ensure the user can only update name, status and shippingAddress
+
+  const allowedUpdates: (keyof TUser)[] = ['status'];
+  const filteredUpdates: Partial<TUser> = {};
+
+  for (const key of allowedUpdates) {
+    if (key in payload) {
+      filteredUpdates[key] = payload[key] as never;
     }
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
+  }
+  const updateUser = await User.findByIdAndUpdate(id, filteredUpdates, {
+    new: true,
+    runValidators: true,
+  });
+  return updateUser;
+};
 
-    if(!isMatch){
-        throw new Error('Old password not matched')
+const blockUser = async (id: string, payload: Partial<TUser>) => {
+  // Ensure the user can only update name, status and shippingAddress
+
+  const allowedUpdates: (keyof TUser)[] = ['isBlocked'];
+  const filteredUpdates: Partial<TUser> = {};
+
+  for (const key of allowedUpdates) {
+    if (key in payload) {
+      filteredUpdates[key] = payload[key] as never;
     }
-     // Hash new password
-     const salt = await bcrypt.genSalt(12);
-     user.password = await bcrypt.hash(newPassword, salt);
- 
-     await user.save();
- 
-     return { message: "Password updated successfully" };
-}
+  }
+  const updateUser = await User.findByIdAndUpdate(id, filteredUpdates, {
+    new: true,
+    runValidators: true,
+  });
+  return updateUser;
+};
 
-const deleteUserFromDB =async(id:string)=>{
- const deleteUser = await User.findByIdAndDelete(id);
- if(!deleteUser){
-    return { deletedCount:0}
- }else{
-    return { deletedCount:1}
- }
-}
+const updateProfile = async (
+  id: string,
+  payload: Partial<TUser>,
+  user: JwtPayload,
+) => {
+  const userData = await User.findOne({ _id: id });
 
-export const UserServices ={
-    createUserIntoDB,
-    getAllUserFromDB,
-    changeRoleIntoDB,
-    deleteUserFromDB,
-    changePasswordIntoDB
-}
+  if (!userData) throw new AppError(status.NOT_FOUND, 'User not found');
+
+  if (userData.email !== user.email)
+    throw new AppError(status.UNAUTHORIZED, 'You are not authorized!');
+
+  // // Ensure the user can only update name, status and shippingAddress
+
+  const allowedUpdates: (keyof TUser)[] = [
+    'name',
+    'shippingAddress',
+    'status',
+    'photo',
+  ];
+  const filteredUpdates: Partial<TUser> = {};
+
+  for (const key of allowedUpdates) {
+    if (key in payload) {
+      filteredUpdates[key] = payload[key] as never;
+    }
+  }
+  const updateUser = await User.findByIdAndUpdate(id, filteredUpdates, {
+    new: true,
+    runValidators: true,
+  });
+  return updateUser;
+};
+const updateProfilePhoto = async (
+  id: string,
+  payload: Partial<TUser>,
+  user: JwtPayload,
+) => {
+  const userData = await User.findOne({ _id: id });
+
+  if (!userData) throw new AppError(status.NOT_FOUND, 'User not found');
+
+  if (userData.email !== user.email)
+    throw new AppError(status.UNAUTHORIZED, 'You are not authorized!');
+
+  // // Ensure the user can only update name, status and shippingAddress
+
+  const allowedUpdates: (keyof TUser)[] = ['photo'];
+  const filteredUpdates: Partial<TUser> = {};
+
+  for (const key of allowedUpdates) {
+    if (key in payload) {
+      filteredUpdates[key] = payload[key] as never;
+    }
+  }
+  const updateUser = await User.findByIdAndUpdate(id, filteredUpdates, {
+    new: true,
+    runValidators: true,
+  });
+  return updateUser;
+};
+
+export const UserServices = {
+  getSingleUserFromDB,
+  getAllUsersFromDB,
+  changeStatus,
+  blockUser,
+  updateProfile,
+  updateProfilePhoto,
+};
