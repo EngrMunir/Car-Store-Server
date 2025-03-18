@@ -43,27 +43,41 @@ const getUserCart = async (req: Request, res: Response) => {
 const increaseQuantity = async (req: Request, res: Response) => {
   try {
     const { email, productId } = req.params;
-    
-    if (!email || !productId) {
-      return res.status(400).json({ success: false, message: 'Missing required fields' });
-    }
-    const updatedCart = await CartServices.increaseQuantity(email, productId);
-    res.status(200).json({ success: true, message: 'Cart updated', data: updatedCart });
+    const result = await CartServices.increaseQuantity(email, productId);
+    // send response
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: 'Product quantity increased',
+    data: result,
+  })
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: error.message,
+      data: null,
+  });
   }
 };
 
 const decreaseQuantity = async (req: Request, res: Response) => {
   try {
     const { email, productId } = req.params;
-    if (!email || !productId) {
-      return res.status(400).json({ success: false, message: 'Missing required fields' });
-    }
-    const updatedCart = await CartServices.decreaseQuantity(email, productId);
-    res.status(200).json({ success: true, message: 'Cart updated', data: updatedCart });
+    const result = await CartServices.decreaseQuantity(email, productId);
+    sendResponse(res, {
+      statusCode: httpStatus.CREATED,
+      success: true,
+      message: 'Product quantity decreased',
+      data: result,
+    })
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: error.message,
+      data: null,
+  });
   }
 };
 
@@ -71,9 +85,19 @@ const removeCartItem = async (req: Request, res: Response) => {
   try {
     const { email, productId } = req.params;
     const result = await CartServices.removeCartItem(email, productId);
-    res.status(200).json({ success: true, message: 'Item removed', data: result });
+    sendResponse(res, {
+      statusCode: httpStatus.CREATED,
+      success: true,
+      message: 'Product removed from cart',
+      data: result,
+    })
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: error.message,
+      data: null,
+  });
   }
 };
 const clearCart = catchAsync(async (req: Request, res: Response) => {

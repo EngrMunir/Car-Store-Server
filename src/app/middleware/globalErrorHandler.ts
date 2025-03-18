@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 import { ErrorRequestHandler } from 'express';
-import { TErrorSources } from '../interface/error.interface';
 import { ZodError } from 'zod';
 import { handleZodError } from '../errors/handleZodError';
 import config from '../config';
@@ -9,6 +8,7 @@ import handleValidationError from '../errors/handleValidationError';
 import handleCastError from '../errors/handleCastError';
 import handleDuplicateError from '../errors/handleDuplicateError';
 import AppError from '../errors/AppError';
+import { TErrorSources } from '../interfaces/error.interface';
 
 export const globalErrorHandler: ErrorRequestHandler = (
   err,
