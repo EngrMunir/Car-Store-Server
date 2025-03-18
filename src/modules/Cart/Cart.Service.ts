@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { CarModel } from "../car/car.model";
 import { CartModel } from "./Cart.model";
 

@@ -70,7 +70,7 @@ const blockUser = catchAsync(async (req, res) => {
 const updateProfile = catchAsync(async (req, res) => {
   // Get user data from request params
   const { userId } = req.params;
-
+  console.log('userid for photo change',userId);
   const user = req.user as JwtPayload;
   const result = await UserServices.updateProfile(userId, req.body, user);
 

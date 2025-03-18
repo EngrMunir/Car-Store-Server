@@ -11,7 +11,7 @@ import { User } from "../../modules/User/user.model";
 const auth = (...requiredRoles:TUserRole[])=>{
     return catchAsync( async (req:Request, res:Response, next:NextFunction)=>{
         const token = req.headers.authorization?.split(' ')[1];
-        // console.log("token from auth",token)
+        console.log("token from auth",token)
 
         // checking if the token is missing
         if(!token){
@@ -36,7 +36,7 @@ const auth = (...requiredRoles:TUserRole[])=>{
         // console.log('role, email from auth',role, email);
 
         // checking if the user is exist
-        const user = await User.isUserExistsByEmail(email);
+        const user = await User.isUserExistByEmail(email);
         if(!user){
             throw new AppError(httpStatus.NOT_FOUND,'This user is not exist');
         }

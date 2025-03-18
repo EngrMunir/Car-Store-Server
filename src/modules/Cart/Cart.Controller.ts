@@ -3,18 +3,27 @@ import { CartServices } from './Cart.Service';
 import { catchAsync } from '../../app/utils/catchAsync';
 import sendResponse from '../../app/utils/sendResponse';
 import httpStatus from 'http-status';
-import mongoose from 'mongoose';
+
 
 const addToCart = async (req: Request, res: Response) => {
-//  console.log(req.body);
   try {
     const { productId, email } = req.body;
-    
-    // console.log(email, productId)
-    const result = await CartServices.addToCart( email, productId);
-    res.status(200).json({ success: true, message: 'Added to cart', data: result });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+  const result = await CartServices.addToCart( email, productId);
+  
+  // send response
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: 'Cart created successfully',
+    data: result,
+  });
+  } catch (error:any) {
+    sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST, // Or another relevant error code
+      success: false,
+      message: error.message, // Send the error message from CartServices
+      data: null,
+  });
   }
 };
 
