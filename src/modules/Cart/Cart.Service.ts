@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { CarModel } from "../car/car.model";
 import { CartModel } from "./Cart.model";
 
@@ -29,8 +30,8 @@ const addToCart = async (email: string, productId: string) => {
     car.quantity-=1;
   } else {
     // If product does not exist, add a new entry
-    console.log(typeof productId);
-    cart.items.push({ product: productId, quantity: 1 });
+    
+    cart.items.push({ product:  new mongoose.Types.ObjectId(productId), quantity: 1 });
     car.quantity-=1;
   }
 

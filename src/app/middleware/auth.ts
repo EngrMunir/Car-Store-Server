@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import { TUserRole } from "../../modules/User/user.interface";
 import { catchAsync } from "../utils/catchAsync";

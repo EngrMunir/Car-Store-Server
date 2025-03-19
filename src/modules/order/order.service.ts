@@ -1,12 +1,12 @@
 import AppError from "../../app/errors/AppError";
 import { CarModel } from "../car/car.model";
-import { TUser } from "../User/user.interface";
 import httpStatus from "http-status";
 import Order from "./order.model";
 import { orderUtils } from "./order.utils";
+import { JwtPayload } from "jsonwebtoken";
 
 const createOrder = async(
-    user:TUser,
+    user:JwtPayload,
     payload: { cars: { product: string; quantity:number}[]},
     client_ip:string
 ) =>{
@@ -14,8 +14,6 @@ const createOrder = async(
         throw new AppError(httpStatus.NOT_ACCEPTABLE, "Order is not specified");
     
     const cars = payload.cars;
-    console.log('payload in create order',payload)
-    console.log('user in create order',user)
     
     let totalPrice = 0;
     const carDetails = await Promise.all(
@@ -30,7 +28,7 @@ const createOrder = async(
     );
 
     let order = await Order.create({
-        user,
+        userEmail:user.email,
         products:carDetails,
         totalPrice,
     });
@@ -97,16 +95,11 @@ const verifyPayment = async (order_id: string)=>{
 };
 
 const getOrderByEmail = async (email:string)=>{
-    const orders = await Order.find().populate(
-        {
-            path:'user',
-            select:'email'
-        }
-    );
-    console.log(orders);
-    const userOrders = orders.filter(order => order.user?.email === email);
-    console.log(userOrders);
-    return userOrders;
+    const orders = await Order.find({userEmail:email});
+    
+    //  const userOrders = orders.filter(order => (order.user?.email)as string  === email);
+    
+    return orders;
 }
 
 export const orderService ={

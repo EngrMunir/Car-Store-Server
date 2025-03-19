@@ -1,7 +1,7 @@
 import { Types, Document } from "mongoose";
 
 export interface IOrder extends Document {
-  user:Types.ObjectId;
+  userEmail:string;
   products:{
     product:Types.ObjectId;
     quantity:number;

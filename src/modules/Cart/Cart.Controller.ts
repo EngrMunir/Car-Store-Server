@@ -51,7 +51,7 @@ const increaseQuantity = async (req: Request, res: Response) => {
     message: 'Product quantity increased',
     data: result,
   })
-  } catch (error) {
+  } catch (error:any) {
     sendResponse(res, {
       statusCode: httpStatus.BAD_REQUEST,
       success: false,
@@ -71,7 +71,7 @@ const decreaseQuantity = async (req: Request, res: Response) => {
       message: 'Product quantity decreased',
       data: result,
     })
-  } catch (error) {
+  } catch (error:any) {
     sendResponse(res, {
       statusCode: httpStatus.BAD_REQUEST,
       success: false,
@@ -91,7 +91,7 @@ const removeCartItem = async (req: Request, res: Response) => {
       message: 'Product removed from cart',
       data: result,
     })
-  } catch (error) {
+  } catch (error:any) {
     sendResponse(res, {
       statusCode: httpStatus.BAD_REQUEST,
       success: false,

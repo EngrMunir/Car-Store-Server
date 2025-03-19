@@ -7,7 +7,15 @@ import sendResponse from '../../app/utils/sendResponse';
 const createOrder = catchAsync(async (req, res) =>{
 
     const user = req.user;
-    console.log('user in create order',user);
+    if (!user) {
+        return sendResponse(res, {
+          statusCode: httpStatus.UNAUTHORIZED,
+          success: false,
+          message: 'Unauthorized: User not authenticated',
+          data: null,
+        });
+      }
+    
     const order = await orderService.createOrder(user, req.body, req.ip!);
 
     sendResponse(res, {
@@ -30,19 +38,9 @@ const getOrders = catchAsync(async (req, res) =>{
 });
 
 const getOrderByEmail = catchAsync(async (req, res) => {
-    const { email } = req.query; // Extract email from query params
-
-    if (!email) {
-        return sendResponse(res, {
-            statusCode: httpStatus.BAD_REQUEST,
-            success: false,
-            message: "Email is required to fetch orders",
-            data: null,
-        });
-    }
+    const { email } = req.params;
 
     const orders = await orderService.getOrderByEmail(email as string);
-
     sendResponse(res, {
         statusCode: httpStatus.OK,
         message: "Orders retrieved successfully",

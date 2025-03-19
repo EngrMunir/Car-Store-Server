@@ -11,10 +11,7 @@ router.patch('/increase-quantity/:email/:productId', CartControllers.increaseQua
 router.patch('/decrease-quantity/:email/:productId', CartControllers.decreaseQuantity);
 router.delete('/remove/:email/:productId', CartControllers.removeCartItem);
 router.delete('/clear/:email', auth(USER_ROLE.user), CartControllers.clearCart);
-// router.get('/cartItem', CartControllers.getUserCart);
 
-
-// // router.put('/update', CartControllers.updateCartItem);
 
 
 export const CartRoutes = router;
