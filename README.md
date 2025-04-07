@@ -47,11 +47,6 @@ Ensure you have the following installed:
 
 ### 📥 Installation
 
-1. **Clone the repository**  
-```bash
-git clone https://github.com/EngrMunir/Car-Store-Server.git
-
-#installation
 1. git clone: https://github.com/EngrMunir/Car-Store-Server.git
 2. cd Car-Store-Server
 3. npm install
